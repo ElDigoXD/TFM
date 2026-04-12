@@ -1,0 +1,2 @@
+- dawn tuto: https://developer.chrome.com/docs/web-platform/webgpu/build-app
+- webgpu tuto: https://eliemichel.github.io/LearnWebGPU/

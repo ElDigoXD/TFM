@@ -5,12 +5,12 @@ git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 ./emsdk install latest
 ```
-Los archivos se descargarán en la carpeta emsdk/upstream.
+Los archivos se descargarán en la carpeta `emsdk/upstream`.
 
 ## Cómo utilizar Emscripten SDK
 
 Existen dos formas de utilizar el SDK:
-- Activar el SDK para la sesión de la terminal actual y utilizar emcmake:
+- Activar el SDK para la sesión de la terminal actual y utilizar `emcmake`:
 
 ```shell
 # Activa el SDK

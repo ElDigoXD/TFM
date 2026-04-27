@@ -25,26 +25,30 @@ GLFWwindow *window;
 // Representa una instancia de WebGPU
 wgpu::Instance instance;
 
-// TODO: documentar
+// Representa un dispositivo físico (adapter) y lógico (device)
+// El adapter se utiliza para crear el device con las características (capabilities) deseadas
 wgpu::Adapter adapter;
 wgpu::Device device;
 
 // Representa la superficie donde dibujar los gráficos
 wgpu::Surface surface;
-// todo: documentar
+// Formato de la textura (número de canales, tamaño de cada canal y tipo de los canales)
 wgpu::TextureFormat texture_format;
 
 // Representa la pipeline gráfica
 wgpu::RenderPipeline pipeline;
 
 // Shader basico con un triángulo rojo
-// TODO: comentar shader
 const char shader_code[] = R"(
+    // Vertex shader:
+    // Por cada vértice, devuelve una posición en pantalla (posición predefinida en el array)
     @vertex fn vertex_main(@builtin(vertex_index) i : u32) ->
       @builtin(position) vec4f {
         const pos = array(vec2f(0, 1), vec2f(-1, -1), vec2f(1, -1));
         return vec4f(pos[i], 0, 1);
     }
+    // Fragment shader:
+    // Por cada pixel dentro de un triángulo, devuelve un color (rojo en este caso)
     @fragment fn fragment_main() -> @location(0) vec4f {
         return vec4f(1, 0, 0, 1);
     }
@@ -61,33 +65,43 @@ void configure_surface() {
     wgpu::SurfaceConfiguration config{
             .device = device,
             .format = texture_format,
+            // Indica que la textura se va a usar como render target (se va a pintar en ella)
+            .usage = wgpu::TextureUsage::RenderAttachment,
             .width = WINDOW_WIDTH,
             .height = WINDOW_HEIGHT,
+            // Indica donde se pinta en la superficie.
+            // ::Immediate pinta directamente en la superficie.
+            // ::Fifo pinta en un buffer intermedio varios frames, y los muestra en orden.
+            // ::Mailbox pinta en un buffer intermedio y descarta los frames anteriores si no se han mostrado.
+            .presentMode = wgpu::PresentMode::Mailbox,
     };
     surface.Configure(&config);
 }
 
-// TODO: documentar
+/// Crea una render pipeline (vertex shader -> fragment shader)
 void create_render_pipeline() {
     // The source code of the shader writen in WGSL
     wgpu::ShaderSourceWGSL wgsl{{.code = shader_code}};
 
+    // Crea el módulo a partir del código fuente
     wgpu::ShaderModuleDescriptor shader_module_descriptor{.nextInChain = &wgsl};
     wgpu::ShaderModule shader_module = device.CreateShaderModule(&shader_module_descriptor);
 
+    // Indica el formato de la textura para el fragment shader
     wgpu::ColorTargetState color_target_state{.format = texture_format};
 
+    // Configura el fragment shader
     wgpu::FragmentState fragment_state{
             .module = shader_module,
             .targetCount = 1,
             .targets = &color_target_state,
     };
 
+    // Crea la pipeline
     wgpu::RenderPipelineDescriptor render_pipeline_descriptor{
-            .vertex = {.module = shader_module},
+            .vertex = {.module = shader_module}, // Configura el vertex shader
             .fragment = &fragment_state,
     };
-
     pipeline = device.CreateRenderPipeline(&render_pipeline_descriptor);
 }
 
@@ -96,32 +110,46 @@ void init_graphics() {
     create_render_pipeline();
 }
 
-// TODO: documentar
+/// Envía los comandos para renderizar la escena en la superficie.
 void render() {
+
+    // Obtiene la textura actual de la superficie a pintar
     wgpu::SurfaceTexture surface_texture;
     surface.GetCurrentTexture(&surface_texture);
+
+    // Indica al Render Pass las texturas objetivo
     wgpu::RenderPassColorAttachment attachment{
             .view = surface_texture.texture.CreateView(),
-            .loadOp = wgpu::LoadOp::Clear,
+            .loadOp = wgpu::LoadOp::Clear, // Limpia la textura antes de pintar
             .storeOp = wgpu::StoreOp::Store,
+            .clearValue = {.1, .1, .1, 1} // Color con el que limpiar
     };
 
-    wgpu::RenderPassDescriptor renderpass{
+    // Indica al Render Pass el número de texturas objetivo y las texturas objetivo.
+    wgpu::RenderPassDescriptor render_pass{
             .colorAttachmentCount = 1,
             .colorAttachments = &attachment,
     };
 
+    // Crea un codificador de comandos.
+    // Es necesario porque cada dispositivo físico tiene su propia codificación
     wgpu::CommandEncoder encoder = device.CreateCommandEncoder();
-    wgpu::RenderPassEncoder pass = encoder.BeginRenderPass(&renderpass);
+    wgpu::RenderPassEncoder pass = encoder.BeginRenderPass(&render_pass);
+    // Comandos
     pass.SetPipeline(pipeline);
+    // Dibuja 3 vertices (un triángulo)
     pass.Draw(3);
     pass.End();
     wgpu::CommandBuffer commands = encoder.Finish();
+    // Envía los comandos
     device.GetQueue().Submit(1, &commands);
 }
 
+/**
+ * Inicializa el Device de WebGPU. Para ello primero se crea la instancia, luego se obtiene el Adapter y finalmente el Device.
+ */
 void init_webgpu() {
-    // Crea la instancia, asegurandose que disponga de la caracteristica TimedWaitAny
+    // Crea la instancia, asegurándose que disponga de la característica TimedWaitAny
     static const wgpu::InstanceFeatureName timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
     wgpu::InstanceDescriptor instance_descriptor{
             .requiredFeatureCount = 1,
@@ -133,7 +161,7 @@ void init_webgpu() {
             nullptr,                         // Sin opciones
             wgpu::CallbackMode::WaitAnyOnly, // Hace uso de la característica anterior
             [](wgpu::RequestAdapterStatus status, wgpu::Adapter l_adapter, wgpu::StringView message) {
-                // Si no hay exito, aborta el programa
+                // Si no hay éxito, aborta el programa
                 if (status != wgpu::RequestAdapterStatus::Success) {
                     std::cerr << "RequestAdapter: " << message << std::endl;
                     exit(-1);
@@ -146,7 +174,7 @@ void init_webgpu() {
     // Bloquea la ejecución hasta que termina la anterior función
     instance.WaitAny(future_1, /* Timeout: */ UINT64_MAX);
 
-    // TODO: documentar
+    // Describe la petición de un dispositivo
     wgpu::DeviceDescriptor dev_descriptor{};
     // Muestra un mensaje de error al ocurrir un error no capturado
     dev_descriptor.SetUncapturedErrorCallback(
@@ -173,6 +201,7 @@ void init_webgpu() {
     instance.WaitAny(future_2, /* Timeout: */ UINT64_MAX);
 }
 
+/// Inicializa GLFW y crea una ventana.
 void init_glfw() {
     // Si no se puede inicializar la librería, aborta el programa
     if (!glfwInit())

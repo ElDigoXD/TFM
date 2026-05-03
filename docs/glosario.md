@@ -1,0 +1,22 @@
+- shader
+- fragment shader
+- vertex shader
+- render
+- pipeline: ver render pipeline
+- render pipeline
+- espacio de clip
+- uniform
+- bind group
+- buffer
+- CPU
+- GPU
+- API
+- API gráfica
+- WebAssembly
+- renderizar
+- nativo
+- backend
+- emscripten
+- toolchain
+- mallas de triángulos
+- refactorizar

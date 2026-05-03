@@ -1,5 +1,5 @@
 // Incluye la librería para la creación de ventanas
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 typedef uint32_t u32;
 

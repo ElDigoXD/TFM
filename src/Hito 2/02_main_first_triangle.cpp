@@ -1,17 +1,12 @@
 #include <iostream>
 
 // Incluye la libreria para la creación de ventanas
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 // Incluye la librería WebGPU
 #include <webgpu/webgpu_cpp.h>
 #include <dawn/webgpu_cpp_print.h>
 #include <webgpu/webgpu_glfw.h>
-
-// Incluye emscripten si se compila para web
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#endif
 
 typedef uint32_t u32;
 
@@ -80,17 +75,14 @@ void configure_surface() {
 
 /// Crea una render pipeline (vertex shader -> fragment shader)
 void create_render_pipeline() {
-    // The source code of the shader writen in WGSL
+    // El código fuente del shader, escrito en WGSL
     wgpu::ShaderSourceWGSL wgsl{{.code = shader_code}};
 
-    // Crea el módulo a partir del código fuente
     wgpu::ShaderModuleDescriptor shader_module_descriptor{.nextInChain = &wgsl};
     wgpu::ShaderModule shader_module = device.CreateShaderModule(&shader_module_descriptor);
 
-    // Indica el formato de la textura para el fragment shader
     wgpu::ColorTargetState color_target_state{.format = texture_format};
 
-    // Configura el fragment shader
     wgpu::FragmentState fragment_state{
             .module = shader_module,
             .targetCount = 1,
@@ -222,10 +214,6 @@ int main() {
 
     init_graphics();
 
-    // En el caso de compilar para web, se hace uso del bucle de emscripten,
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(render, 0, false);
-#else
     // Bucle de eventos
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -234,6 +222,6 @@ int main() {
         surface.Present();
         instance.ProcessEvents();
     }
-#endif
+
     return 0;
 }

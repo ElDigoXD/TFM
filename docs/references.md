@@ -1,5 +1,0 @@
-- dawn tuto: https://developer.chrome.com/docs/web-platform/webgpu/build-app
-- webgpu tuto: https://eliemichel.github.io/LearnWebGPU/
-- webgpu spec: https://gpuweb.github.io/gpuweb/
-- wgsl docs: https://docs.rs/wgpu/latest/wgpu/
-- glfw docs: https://www.glfw.org/docs/3.3/input_guide.html

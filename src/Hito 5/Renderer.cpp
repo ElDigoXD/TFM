@@ -10,7 +10,7 @@
 bool Renderer::init(GLFWwindow *window) {
     if (!init_webgpu()) return false;
     if (!init_surface(window)) return false;
-    if (!init_render_pipeline()) return false;
+    if (!init_default_render_pipeline()) return false;
     if (!init_uniform_buffers()) return false;
 
     printf("Init Renderer done\n");
@@ -117,7 +117,7 @@ bool Renderer::init_surface(GLFWwindow *window) {
     return true;
 }
 
-bool Renderer::init_render_pipeline() {
+bool Renderer::init_default_render_pipeline() {
     // El código fuente del shader, escrito en WGSL
     wgpu::ShaderModule shader_module =
             ResourceManager::load_shader_module(RESOURCE_DIR "perspective_shader.wgsl", device);
@@ -354,7 +354,7 @@ void Renderer::render(const Camera &camera, const std::vector<GameObject> &game_
     for (const auto &game_object: game_objects) {
         // Se actualizan los datos de la transformación del objeto en su uniform buffer
         auto transform = game_object.transform.get_matrix();
-        device.GetQueue().WriteBuffer(game_object.uniform_buffer, 0, &transform, sizeof(mat4));
+        device.GetQueue().WriteBuffer(game_object.transform_buffer, 0, &transform, sizeof(mat4));
 
         // Se establece el bind group del objeto
         pass.SetBindGroup(1, game_object.bind_group);

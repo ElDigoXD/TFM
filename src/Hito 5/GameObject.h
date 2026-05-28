@@ -12,7 +12,7 @@ public:
     /// Bind group que contiene el uniform buffer con la matriz de transformación del objeto.
     wgpu::BindGroup bind_group;
     /// Buffer que contiene la matriz de transformación del objeto.
-    wgpu::Buffer uniform_buffer;
+    wgpu::Buffer transform_buffer;
 
     /// Transformación del objeto (posición, rotación y escala).
     Transform transform;

@@ -19,7 +19,7 @@ add_executable(TFM_05
 )
 
 # Define la ruta en la que se encuentran los recursos (shaders, modelos, texturas, etc.)
-if (0)
+if (1)
     # Ruta absoluta, para el proceso de desarrollo
     target_compile_definitions(TFM_05 PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources/")
 else ()

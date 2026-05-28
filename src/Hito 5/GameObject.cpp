@@ -12,13 +12,13 @@ void GameObject::create_bind_group(const Renderer &renderer) {
             .usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
             .size = sizeof(mat4),
     };
-    uniform_buffer = renderer.get_device().CreateBuffer(&uniform_buffer_desc);
+    transform_buffer = renderer.get_device().CreateBuffer(&uniform_buffer_desc);
 
     // Crea el bind group para el buffer anterior.
     wgpu::BindGroupEntry bind_group_entry{
             // @binding(0) en el shader
             .binding = 0,
-            .buffer = uniform_buffer,
+            .buffer = transform_buffer,
             .offset = 0,
             .size = sizeof(mat4),
     };

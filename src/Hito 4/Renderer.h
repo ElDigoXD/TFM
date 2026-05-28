@@ -30,7 +30,7 @@ public:
     bool init(GLFWwindow *window) {
         if (!init_webgpu()) return false;
         if (!init_surface(window)) return false;
-        if (!init_render_pipeline()) return false;
+        if (!init_default_render_pipeline()) return false;
 
         printf("Init Renderer done\n");
         return true;
@@ -139,7 +139,7 @@ public:
 
     /// Crea una render pipeline (vertex shader -> fragment shader).
     /// También configura el depth buffer.
-    bool init_render_pipeline() {
+    bool init_default_render_pipeline() {
         // El código fuente del shader, escrito en WGSL
         wgpu::ShaderModule shader_module = ResourceManager::load_shader_module(RESOURCE_DIR "normals_shader.wgsl",
                                                                                device);

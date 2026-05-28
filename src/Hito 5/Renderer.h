@@ -97,7 +97,7 @@ public:
     /// Crea una render pipeline (vertex shader -> fragment shader).
     /// También configura el formato de los vértices, el depth buffer y los layouts de los bind groups necesarios para el shader.
     /// @return Si la ejecución ha sido exitosa.
-    bool init_render_pipeline();
+    bool init_default_render_pipeline();
 
     /// Crea los uniform buffers necesarios para enviar los datos de la cámara al shader.
     /// También crea el bind group para utilizar el buffer enn el shader.
